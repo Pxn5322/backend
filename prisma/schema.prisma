@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  AGENT
+}
+
+enum TicketStatus{
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum TicketPriority{
+  LOW
+  MEDIUM
+  HIGH
+  PENDING
+}
+
+enum TicketSentiment{
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+  ANGRY
+}
+
+model Tenant {
+  id          String   @id @default(uuid())
+  companyName String
+  createdAt   DateTime @default(now())
+  users       User[]
+  tickets     Ticket[]
+  knowledge   KnowledgeBase[]
+}
+
+model User {
+  id        String   @id // Will match Firebase/Clerk UID later
+  email     String   @unique
+  role      UserRole   // "ADMIN" or "AGENT"
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Ticket {
+  id          String   @id @default(uuid())
+  title       String
+  rawText     String
+  status      TicketStatus   @default("OPEN")     // OPEN, IN_PROGRESS, RESOLVED
+  priority    TicketPriority   @default("PENDING")  // HIGH, MEDIUM, LOW (Set by LLM later)
+  sentiment   TicketSentiment   @default("NEUTRAL")  // ANGRY, CALM, NEUTRAL (Set by LLM later)
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model KnowledgeBase {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  tenantId  String
+  tenant    Tenant @relation(fields:[tenantId],references:[id])
+  createdAt DateTime @default(now())
+  // Vector embeddings field will be added on Thursday next week
+}
