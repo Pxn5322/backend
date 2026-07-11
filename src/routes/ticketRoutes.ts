@@ -1,22 +1,19 @@
 import { Router } from "express";
-import { requireAuth } from "../middleware/authMiddleware";
-import { requireAdmin } from "../middleware/roleMiddleware";
-import { getTickets, createTicket, updateTicket, deleteTicket, } from "../controllers/ticketController";
+import * as ticketController from "../controllers/ticketController";
+import { authenticate } from "../middleware/authenticate";
+import { requireRole } from "../middleware/roleMiddleware";
 
 const router = Router();
+router.use(authenticate);
 
-router.use(requireAuth);
+router.get("/", ticketController.getTickets);
 
-// Everyone can read
-router.get("/", getTickets);
+router.get("/:id", ticketController.getTicket);
 
-// Everyone authenticated can create
-router.post("/", createTicket);
+router.post("/", ticketController.createTicket);
 
-// Only ADMIN can edit
-router.put("/:id", requireAdmin, updateTicket);
+router.put("/:id", ticketController.updateTicket);
 
-// Only ADMIN can delete
-router.delete("/:id", requireAdmin, deleteTicket);
+router.delete("/:id", requireRole("ADMIN"), ticketController.deleteTicket);
 
 export default router;

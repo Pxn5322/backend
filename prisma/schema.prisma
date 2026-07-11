@@ -25,10 +25,11 @@ enum TicketStatus{
 }
 
 enum TicketPriority{
+  PENDING
   LOW
   MEDIUM
   HIGH
-  PENDING
+  CRITICAL
 }
 
 enum TicketSentiment{
@@ -50,7 +51,7 @@ model Tenant {
 model User {
   id        String   @id // Will match Firebase/Clerk UID later
   email     String   @unique
-  role      UserRole   // "ADMIN" or "AGENT"
+  role      UserRole @default(AGENT)  // "ADMIN" or "AGENT"
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
   createdAt DateTime @default(now())
@@ -60,9 +61,9 @@ model Ticket {
   id          String   @id @default(uuid())
   title       String
   rawText     String
-  status      TicketStatus   @default("OPEN")     // OPEN, IN_PROGRESS, RESOLVED
-  priority    TicketPriority   @default("PENDING")  // HIGH, MEDIUM, LOW (Set by LLM later)
-  sentiment   TicketSentiment   @default("NEUTRAL")  // ANGRY, CALM, NEUTRAL (Set by LLM later)
+  status      TicketStatus   @default(OPEN)     // OPEN, IN_PROGRESS, RESOLVED
+  priority    TicketPriority   @default(PENDING)  // HIGH, MEDIUM, LOW (Set by LLM later)
+  sentiment   TicketSentiment   @default(NEUTRAL)  // ANGRY, CALM, NEUTRAL (Set by LLM later)
   tenantId    String
   tenant      Tenant   @relation(fields: [tenantId], references: [id])
   createdAt   DateTime @default(now())

@@ -1,13 +1,12 @@
-import { Request, Response } from "express";
-import { prisma } from "../lib/prisma";
-import { AuthenticatedRequest } from "../middleware/authMiddleware";
+import { Response } from "express";
+import * as ticketService from "../services/ticketService";
+import { AuthRequest } from "../middleware/authenticate";
 
-export const getTickets = async (req: AuthenticatedRequest, res: Response) => {
+export const getTickets = async (req: AuthRequest, res: Response) => {
     try {
-        const tickets = await prisma.ticket.findMany({
-            where: { tenantId: req.user!.tenantId, },
-            orderBy: { createdAt: "desc", },
-        });
+        const tickets = await ticketService.getTickets(
+            req.user!.tenantId
+        );
 
         res.json(tickets);
     } catch (error) {
@@ -16,17 +15,35 @@ export const getTickets = async (req: AuthenticatedRequest, res: Response) => {
     }
 };
 
-export const createTicket = async (req: AuthenticatedRequest, res: Response) => {
+export async function getTicket(req: AuthRequest, res: Response) {
+    try {
+        const id = req.params.id as string;
+
+        const ticket = await ticketService.getTicket(
+            id,
+            req.user!.tenantId
+        );
+
+        if (!ticket) {
+            return res.status(404).json({ message: "Ticket not found" });
+        }
+
+        res.json(ticket);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch tickets", });
+    }
+}
+
+export const createTicket = async (req: AuthRequest, res: Response) => {
     try {
         const { title, rawText } = req.body;
 
-        const ticket = await prisma.ticket.create({
-            data: {
-                title,
-                rawText,
-                tenantId: req.user!.tenantId,
-            },
-        });
+        const ticket = await ticketService.createTicket(
+            req.user!.tenantId,
+            title,
+            rawText
+        );
 
         res.status(201).json(ticket);
     } catch (error) {
@@ -35,56 +52,49 @@ export const createTicket = async (req: AuthenticatedRequest, res: Response) => 
     }
 };
 
-export const updateTicket = async (req: AuthenticatedRequest, res: Response) => {
+export const updateTicket = async (req: AuthRequest, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
 
-        const ticket = await prisma.ticket.findFirst({
-            where: {
-                id,
-                tenantId: req.user!.tenantId,
-            },
-        });
+        const ticket = await ticketService.updateTicket(
+            req.user!.tenantId,
+            id,
+            req.body
+        );
 
-        if (!ticket) {
-            return res.status(404).json({ error: "Ticket not found", });
-        }
-
-        const updatedTicket = await prisma.ticket.update({
-            where: { id, },
-            data: req.body,
-        });
-
-        res.json(updatedTicket);
+        res.json(ticket);
     } catch (error) {
         console.error(error);
+
+        if (error instanceof Error) {
+            if (error.message === "Ticket not found") {
+                return res.status(404).json({ message: error.message });
+            }
+        }
+
         res.status(500).json({ error: "Failed to update ticket", });
     }
 };
 
-export const deleteTicket = async (req: AuthenticatedRequest, res: Response) => {
+export const deleteTicket = async (req: AuthRequest, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
 
-        // Verify the ticket belongs to the current tenant
-        const ticket = await prisma.ticket.findFirst({
-            where: {
-                id,
-                tenantId: req.user!.tenantId,
-            },
-        });
-
-        if (!ticket) {
-            return res.status(404).json({ error: "Ticket not found", });
-        }
-
-        await prisma.ticket.delete({
-            where: { id, },
-        });
+        await ticketService.deleteTicket(
+            req.user!.tenantId,
+            id
+        );
 
         res.json({ message: "Ticket deleted successfully", });
     } catch (error) {
         console.error(error);
+
+        if (error instanceof Error) {
+            if (error.message === "Ticket not found") {
+                return res.status(404).json({ message: error.message });
+            }
+        }
+
         res.status(500).json({ error: "Failed to delete ticket", });
     }
 };

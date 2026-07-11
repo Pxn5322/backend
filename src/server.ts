@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import ticketRoutes from "./routes/ticketRoutes";
+import testRoutes from "./routes/test";
 
 dotenv.config();
 
@@ -14,8 +15,11 @@ app.get("/", (req, res) => {
     res.json({ message: "Customer Support API Running" });
 });
 
-// Register Routes
-app.use("/api/tickets", ticketRoutes);
+app.use("/tickets", ticketRoutes);
+
+app.use("/firebase-test", testRoutes);
+
+app.use("/api", testRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
