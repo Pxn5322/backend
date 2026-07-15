@@ -3,6 +3,9 @@ import cors from "cors";
 import ticketRoutes from "./routes/ticketRoutes";
 import authRoutes from "./routes/authRoutes";
 import testRoutes from "./routes/test";
+import knowledgeRoutes from "./routes/knowledgeRoutes";
+import userRoutes from "./routes/userRoutes";
+import dashboardRoutes from "./routes/dashboardRoutes";
 
 const app = express();
 
@@ -16,6 +19,12 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 
 app.use("/api/tickets", ticketRoutes);
+
+app.use("/api/knowledge", knowledgeRoutes);
+
+app.use("/api/users", userRoutes);
+
+app.use("/api/dashboard", dashboardRoutes);
 
 app.use("/api", testRoutes);
 
