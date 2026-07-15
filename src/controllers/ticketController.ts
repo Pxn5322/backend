@@ -20,8 +20,8 @@ export async function getTicket(req: AuthRequest, res: Response) {
         const id = req.params.id as string;
 
         const ticket = await ticketService.getTicket(
-            id,
-            req.user!.tenantId
+            req.user!.tenantId,
+            id
         );
 
         if (!ticket) {
