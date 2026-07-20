@@ -1,6 +1,9 @@
 import { Response } from "express";
 import * as ticketService from "../services/ticketService";
 import { AuthRequest } from "../middleware/authenticate";
+import * as knowledgeService from "../services/knowledgeService";
+import * as aiService from "../services/aiService";
+import { findRelevantKnowledge } from "../utils/knowledgeSearch";
 
 export const getTickets = async (req: AuthRequest, res: Response) => {
     try {
@@ -37,12 +40,13 @@ export async function getTicket(req: AuthRequest, res: Response) {
 
 export const createTicket = async (req: AuthRequest, res: Response) => {
     try {
-        const { title, rawText } = req.body;
+        const { title, rawText, attachmentUrl } = req.body;
 
         const ticket = await ticketService.createTicket(
             req.user!.tenantId,
             title,
-            rawText
+            rawText,
+            attachmentUrl
         );
 
         res.status(201).json(ticket);
@@ -98,3 +102,64 @@ export const deleteTicket = async (req: AuthRequest, res: Response) => {
         res.status(500).json({ error: "Failed to delete ticket", });
     }
 };
+
+export async function generateTicketReply(req: AuthRequest, res: Response) {
+    try {
+        const id = req.params.id as string;
+
+        const ticket = await ticketService.getTicket(
+            req.user!.tenantId,
+            id
+        );
+
+        if (!ticket) {
+            return res.status(404).json({ message: "Ticket not found", });
+        }
+
+        const allKnowledge = await knowledgeService.getKnowledgeForAI(
+            req.user!.tenantId
+        );
+
+        const knowledge = findRelevantKnowledge(
+            allKnowledge,
+            ticket.title + " " + ticket.rawText
+        );
+
+        const reply = await aiService.generateReply({
+            title: ticket.title,
+            rawText: ticket.rawText,
+            knowledge,
+        });
+
+        res.json({ reply, });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Unable to generate reply", });
+    }
+
+}
+
+export async function ticketAnalysis(req: AuthRequest, res: Response) {
+    try {
+        const ticketId = req.params.id as string;
+
+        const ticket = await ticketService.getTicket(
+            req.user!.tenantId,
+            ticketId
+        );
+
+        if (!ticket) {
+            return res.status(404).json({ message: "Ticket not found", });
+        }
+
+        const result = await aiService.generateTicketAnalysis(
+            ticket.title,
+            ticket.rawText
+        );
+
+        res.json(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "AI analysis failed", });
+    }
+}

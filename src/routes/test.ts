@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authenticate, AuthRequest } from "../middleware/authenticate";
 import { adminAuth } from "../config/firebaseAdmin";
 import { requireRole } from "../middleware/roleMiddleware";
+import { analyzeTicket } from "../services/aiService";
 
 const router = Router();
 
@@ -26,6 +27,20 @@ router.get("/", async (_, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false });
+    }
+});
+
+router.get("/test-ai", async (_, res) => {
+    try {
+        const result = await analyzeTicket(
+            "Payment server is down",
+            "Customers cannot pay and every checkout fails."
+        );
+
+        res.json(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "AI failed" });
     }
 });
 

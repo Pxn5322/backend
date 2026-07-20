@@ -12,6 +12,10 @@ router.get("/:id", ticketController.getTicket);
 
 router.post("/", ticketController.createTicket);
 
+router.post("/:id/analyze", ticketController.ticketAnalysis);
+
+router.post("/:id/reply", ticketController.generateTicketReply);
+
 router.put("/:id", ticketController.updateTicket);
 
 router.delete("/:id", requireRole("ADMIN"), ticketController.deleteTicket);

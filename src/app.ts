@@ -6,6 +6,7 @@ import testRoutes from "./routes/test";
 import knowledgeRoutes from "./routes/knowledgeRoutes";
 import userRoutes from "./routes/userRoutes";
 import dashboardRoutes from "./routes/dashboardRoutes";
+import tenantRoutes from "./routes/tenantRoutes";
 
 const app = express();
 
@@ -25,6 +26,8 @@ app.use("/api/knowledge", knowledgeRoutes);
 app.use("/api/users", userRoutes);
 
 app.use("/api/dashboard", dashboardRoutes);
+
+app.use("/api/tenants", tenantRoutes);
 
 app.use("/api", testRoutes);
 

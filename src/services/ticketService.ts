@@ -1,15 +1,22 @@
 import { Prisma, TicketPriority, TicketSentiment, TicketStatus } from "../../generated/prisma";
 import { prisma } from "../lib/prisma";
+import { analyzeTicket } from "./aiService";
 
-export async function createTicket(tenantId: string, title: string, rawText: string) {
+export async function createTicket(tenantId: string, title: string, rawText: string, attachmentUrl?: string) {
+    const analysis = await analyzeTicket(
+        title,
+        rawText
+    );
+
     return prisma.ticket.create({
         data: {
             tenantId,
             title,
             rawText,
+            attachmentUrl,
             status: TicketStatus.OPEN,
-            priority: TicketPriority.PENDING,
-            sentiment: TicketSentiment.NEUTRAL
+            priority: analysis.priority as TicketPriority,
+            sentiment: analysis.sentiment as TicketSentiment,
         }
     });
 }
