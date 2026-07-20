@@ -1,3 +1,4 @@
+import { TicketPriority, TicketStatus, } from "../../generated/prisma";
 import { prisma } from "../lib/prisma";
 
 export async function getDashboardStats(tenantId: string) {
@@ -6,23 +7,32 @@ export async function getDashboardStats(tenantId: string) {
         openTickets,
         progressTickets,
         resolvedTickets,
+        highPriorityTickets,
+        criticalPriorityTickets,
         knowledgeCount,
         recentTickets,
     ] = await Promise.all([
         prisma.ticket.count({ where: { tenantId }, }),
 
         prisma.ticket.count({
-            where: { tenantId, status: "OPEN", },
+            where: { tenantId, status: TicketStatus.OPEN, },
         }),
 
         prisma.ticket.count({
-            where: { tenantId, status: "IN_PROGRESS", },
+            where: { tenantId, status: TicketStatus.IN_PROGRESS, },
         }),
 
         prisma.ticket.count({
-            where: { tenantId, status: "RESOLVED", },
+            where: { tenantId, status: TicketStatus.RESOLVED, },
         }),
 
+        prisma.ticket.count({
+            where: { tenantId, priority: TicketPriority.HIGH }
+        }),
+
+        prisma.ticket.count({
+            where: { tenantId, priority: TicketPriority.CRITICAL }
+        }),
         prisma.knowledgeBase.count({
             where: { tenantId },
         }),
@@ -39,6 +49,8 @@ export async function getDashboardStats(tenantId: string) {
         openTickets,
         progressTickets,
         resolvedTickets,
+        highPriorityTickets,
+        criticalPriorityTickets,
         knowledgeCount,
         recentTickets,
     };

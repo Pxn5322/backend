@@ -14,8 +14,10 @@ datasource db {
 }
 
 enum UserRole {
+  ENTERPRISE
   ADMIN
   AGENT
+  USER
 }
 
 enum TicketStatus{
@@ -25,7 +27,6 @@ enum TicketStatus{
 }
 
 enum TicketPriority{
-  PENDING
   LOW
   MEDIUM
   HIGH
@@ -50,24 +51,35 @@ model Tenant {
 
 model User {
   id        String   @id // Will match Firebase/Clerk UID later
+  name      String
   email     String   @unique
-  role      UserRole @default(AGENT)  // "ADMIN" or "AGENT"
+  role      UserRole @default(USER)  // "ADMIN" or "AGENT"
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EnterpriseAccount {
+  id         String   @id
+  email      String   @unique
+  name       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Ticket {
-  id          String   @id @default(uuid())
-  title       String
-  rawText     String
-  status      TicketStatus   @default(OPEN)     // OPEN, IN_PROGRESS, RESOLVED
-  priority    TicketPriority   @default(PENDING)  // HIGH, MEDIUM, LOW (Set by LLM later)
-  sentiment   TicketSentiment   @default(NEUTRAL)  // ANGRY, CALM, NEUTRAL (Set by LLM later)
-  tenantId    String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(uuid())
+  title         String
+  rawText       String
+  attachmentUrl String?
+  status        TicketStatus   @default(OPEN)     // OPEN, IN_PROGRESS, RESOLVED
+  priority      TicketPriority   @default(LOW)  // HIGH, MEDIUM, LOW (Set by LLM later)
+  sentiment     TicketSentiment   @default(NEUTRAL)  // ANGRY, CALM, NEUTRAL (Set by LLM later)
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model KnowledgeBase {
