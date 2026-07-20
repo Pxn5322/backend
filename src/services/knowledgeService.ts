@@ -13,6 +13,13 @@ export async function getKnowledge(tenantId: string, id: string) {
     });
 }
 
+export async function getKnowledgeForAI(tenantId: string) {
+    return prisma.knowledgeBase.findMany({
+        where: { tenantId, },
+        select: { title: true, content: true, },
+    });
+}
+
 export async function createKnowledge(tenantId: string, title: string, content: string) {
     return prisma.knowledgeBase.create({
         data: { tenantId, title, content, },
