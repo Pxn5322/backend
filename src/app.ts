@@ -7,6 +7,7 @@ import knowledgeRoutes from "./routes/knowledgeRoutes";
 import userRoutes from "./routes/userRoutes";
 import dashboardRoutes from "./routes/dashboardRoutes";
 import tenantRoutes from "./routes/tenantRoutes";
+import enterpriseRoutes from "./routes/enterpriseRoutes";
 
 const app = express();
 
@@ -28,6 +29,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
 app.use("/api/tenants", tenantRoutes);
+
+app.use("/api/enterprise", enterpriseRoutes);
 
 app.use("/api", testRoutes);
 

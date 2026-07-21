@@ -1,14 +1,13 @@
 import { Request, Response } from "express";
 import * as tenantService from "../services/tenantService";
 
-export async function getTenants(req: Request, res: Response) {
+export async function getCompanies(req: Request, res: Response) {
     try {
-        const tenants = await tenantService.getTenants();
-
-        res.json(tenants);
+        const companies = await tenantService.getCompanies();
+        res.json(companies);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Unable to fetch tenants", });
+        res.status(500).json({ message: "Unable to fetch companies", });
     }
 }
 
@@ -31,16 +30,18 @@ export async function getTenant(req: Request, res: Response) {
     }
 }
 
-export async function createTenant(req: Request, res: Response) {
+export async function registerCompany(req: Request, res: Response) {
     try {
-        const tenant = await tenantService.createTenant(
-            req.body.companyName
+        const company = await tenantService.registerCompany(
+            req.body
         );
 
-        res.status(201).json(tenant);
+        res.status(201).json(company);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Unable to create tenant", });
+        res.status(400).json({
+            message: error instanceof Error ? error.message : "Unable to create company"
+        });
     }
 }
 
@@ -50,7 +51,8 @@ export async function updateTenant(req: Request, res: Response) {
 
         const tenant = await tenantService.updateTenant(
             id,
-            req.body.companyName
+            req.body.companyName,
+            req.body.companyCode
         );
 
         res.json(tenant);

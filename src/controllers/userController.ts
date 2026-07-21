@@ -1,14 +1,22 @@
 import { Response } from "express";
 import { AuthRequest } from "../middleware/authenticate";
 import * as userService from "../services/userService";
+import { UserRole } from "../../generated/prisma";
 
 export async function getUsers(req: AuthRequest, res: Response) {
     try {
         const users = await userService.getUsers(
+            req.user!.role as UserRole,
             req.user!.tenantId
         );
 
-        res.json(users);
+        res.json(users.map(user => ({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            createdAt: user.createdAt,
+        })));
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Unable to load users", });

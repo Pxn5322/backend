@@ -1,16 +1,14 @@
 import { Router } from "express";
 import { authenticate } from "../middleware/authenticate";
 import { requireRole } from "../middleware/roleMiddleware";
-import * as userController from "../controllers/userController";
+import * as enterpriseController from "../controllers/enterpriseController";
 
 const router = Router();
 
 router.use(authenticate);
 
-router.use(requireRole("ENTERPRISE", "ADMIN"));
+router.use(requireRole("ENTERPRISE"));
 
-router.get("/", userController.getUsers);
-
-router.put("/:id/role", userController.updateRole);
+router.get("/dashboard", enterpriseController.getDashboard);
 
 export default router;

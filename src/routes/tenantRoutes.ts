@@ -7,16 +7,14 @@ const router = Router();
 
 router.use(authenticate);
 
-router.use(requireRole("ADMIN"));
+router.get("/", requireRole("ENTERPRISE"), tenantController.getCompanies);
 
-router.get("/", tenantController.getTenants);
+router.get("/:id", requireRole("ENTERPRISE", "ADMIN"), tenantController.getTenant);
 
-router.get("/:id", tenantController.getTenant);
+router.post("/register-company", requireRole("ENTERPRISE"), tenantController.registerCompany);
 
-router.post("/", tenantController.createTenant);
+router.put("/:id", requireRole("ENTERPRISE", "ADMIN"), tenantController.updateTenant);
 
-router.put("/:id", tenantController.updateTenant);
-
-router.delete("/:id", tenantController.deleteTenant);
+router.delete("/:id", requireRole("ENTERPRISE"), tenantController.deleteTenant);
 
 export default router;

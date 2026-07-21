@@ -42,8 +42,10 @@ enum TicketSentiment{
 
 model Tenant {
   id          String   @id @default(uuid())
+  companyCode String   @unique
   companyName String
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   users       User[]
   tickets     Ticket[]
   knowledge   KnowledgeBase[]
@@ -53,19 +55,11 @@ model User {
   id        String   @id // Will match Firebase/Clerk UID later
   name      String
   email     String   @unique
-  role      UserRole @default(USER)  // "ADMIN" or "AGENT"
+  role      UserRole @default(USER)
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-model EnterpriseAccount {
-  id         String   @id
-  email      String   @unique
-  name       String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
 }
 
 model Ticket {

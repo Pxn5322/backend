@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { adminAuth } from "../config/firebaseAdmin";
-import { prisma } from "../lib/prisma";
+import { getUser } from "../services/userService";
 
 export interface AuthRequest extends Request {
     user?: {
         uid: string;
+        name: string;
         email: string;
         role: string;
         tenantId: string;
@@ -23,16 +24,15 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
         const token = authHeader.replace("Bearer ", "");
         const decoded = await adminAuth.verifyIdToken(token);
 
-        const dbUser = await prisma.user.findUnique({
-            where: { id: decoded.uid }
-        });
+        const dbUser = await getUser(decoded.uid,);
 
         if (!dbUser) {
-            return res.status(401).json({ message: "User not found" });
+            return res.status(401).json({ message: "User not registered.", });
         }
 
         req.user = {
             uid: dbUser.id,
+            name: dbUser.name,
             email: dbUser.email,
             role: dbUser.role,
             tenantId: dbUser.tenantId
@@ -42,6 +42,10 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
     }
     catch (error) {
         console.error(error);
-        return res.status(401).json({ message: "Invalid authentication token" });
+        return res.status(401).json({
+            message: error instanceof Error
+                ? error.message
+                : "Invalid authentication token"
+        });
     }
 }

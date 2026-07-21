@@ -19,11 +19,7 @@ router.get("/admin", authenticate, requireRole("ADMIN"), (_, res) => {
 router.get("/", async (_, res) => {
     try {
         const users = await adminAuth.listUsers(1);
-
-        res.json({
-            success: true,
-            users: users.users.length
-        });
+        res.json({ success: true, users: users.users.length });
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false });
