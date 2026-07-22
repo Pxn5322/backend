@@ -59,6 +59,7 @@ model User {
   role      UserRole @default(USER)
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  tickets   Ticket[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -73,6 +74,8 @@ model Ticket {
   sentiment     TicketSentiment   @default(NEUTRAL)  // ANGRY, CALM, NEUTRAL (Set by LLM later)
   tenantId      String
   tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  createdById   String
+  createdBy     User     @relation(fields: [createdById], references: [id])
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }

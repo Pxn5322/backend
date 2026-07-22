@@ -8,7 +8,9 @@ import { findRelevantKnowledge } from "../utils/knowledgeSearch";
 export const getTickets = async (req: AuthRequest, res: Response) => {
     try {
         const tickets = await ticketService.getTickets(
-            req.user!.tenantId
+            req.user!.tenantId,
+            req.user!.uid,
+            req.user!.role
         );
 
         res.json(tickets);
@@ -24,6 +26,8 @@ export async function getTicket(req: AuthRequest, res: Response) {
 
         const ticket = await ticketService.getTicket(
             req.user!.tenantId,
+            req.user!.uid,
+            req.user!.role,
             id
         );
 
@@ -44,6 +48,7 @@ export const createTicket = async (req: AuthRequest, res: Response) => {
 
         const ticket = await ticketService.createTicket(
             req.user!.tenantId,
+            req.user!.uid,
             title,
             rawText,
             attachmentUrl
@@ -62,6 +67,8 @@ export const updateTicket = async (req: AuthRequest, res: Response) => {
 
         const ticket = await ticketService.updateTicket(
             req.user!.tenantId,
+            req.user!.uid,
+            req.user!.role,
             id,
             req.body
         );
@@ -73,6 +80,10 @@ export const updateTicket = async (req: AuthRequest, res: Response) => {
         if (error instanceof Error) {
             if (error.message === "Ticket not found") {
                 return res.status(404).json({ message: error.message });
+            }
+
+            if (error.message === "Forbidden") {
+                return res.status(403).json({ message: error.message, });
             }
         }
 
@@ -86,6 +97,8 @@ export const deleteTicket = async (req: AuthRequest, res: Response) => {
 
         await ticketService.deleteTicket(
             req.user!.tenantId,
+            req.user!.uid,
+            req.user!.role,
             id
         );
 
@@ -96,6 +109,10 @@ export const deleteTicket = async (req: AuthRequest, res: Response) => {
         if (error instanceof Error) {
             if (error.message === "Ticket not found") {
                 return res.status(404).json({ message: error.message });
+            }
+
+            if (error.message === "Forbidden") {
+                return res.status(403).json({ essage: error.message, });
             }
         }
 
