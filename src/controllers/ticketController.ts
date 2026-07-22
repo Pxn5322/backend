@@ -126,6 +126,8 @@ export async function generateTicketReply(req: AuthRequest, res: Response) {
 
         const ticket = await ticketService.getTicket(
             req.user!.tenantId,
+            req.user!.uid,
+            req.user!.role,
             id
         );
 
@@ -162,6 +164,8 @@ export async function ticketAnalysis(req: AuthRequest, res: Response) {
 
         const ticket = await ticketService.getTicket(
             req.user!.tenantId,
+            req.user!.uid,
+            req.user!.role,
             ticketId
         );
 
