@@ -13,7 +13,13 @@ import adminUserRoutes from "./routes/adminUserRoutes";
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: [
+        "http://localhost:3000",
+        process.env.FRONTEND_URL!,
+    ],
+    credentials: true,
+}));
 app.use(express.json());
 
 app.get("/", (req, res) => {
