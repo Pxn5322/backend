@@ -8,6 +8,8 @@ import userRoutes from "./routes/userRoutes";
 import dashboardRoutes from "./routes/dashboardRoutes";
 import tenantRoutes from "./routes/tenantRoutes";
 import enterpriseRoutes from "./routes/enterpriseRoutes";
+import platformUserRoutes from "./routes/platformUserRoutes";
+import adminUserRoutes from "./routes/adminUserRoutes";
 
 const app = express();
 
@@ -31,6 +33,10 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/tenants", tenantRoutes);
 
 app.use("/api/enterprise", enterpriseRoutes);
+
+app.use("/api/platform-users", platformUserRoutes);
+
+app.use("/api/admin-users", adminUserRoutes);
 
 app.use("/api", testRoutes);
 

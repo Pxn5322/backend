@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { adminAuth } from "../config/firebaseAdmin";
-import { getUser } from "../services/userService";
+import { getTenantUser } from "../services/userService";
 
 export interface AuthRequest extends Request {
     user?: {
@@ -24,7 +24,7 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
         const token = authHeader.replace("Bearer ", "");
         const decoded = await adminAuth.verifyIdToken(token);
 
-        const dbUser = await getUser(decoded.uid,);
+        const dbUser = await getTenantUser(decoded.uid,);
 
         if (!dbUser) {
             return res.status(401).json({ message: "User not registered.", });

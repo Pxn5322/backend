@@ -9,8 +9,8 @@ router.use(authenticate);
 
 router.use(requireRole("ENTERPRISE", "ADMIN"));
 
-router.get("/", userController.getUsers);
+router.get("/", userController.getTenantUsers);
 
-router.put("/:id/role", userController.updateRole);
+router.put("/:id/role", userController.updateTenantUser);
 
 export default router;
